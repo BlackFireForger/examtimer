@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Timer Pro</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            border: 1px solid #333;
+            position: relative;
+        }
+        h1 { color: #4CAF50; margin-bottom: 20px; font-size: 1.6rem; }
+        .timer-display {
+            font-size: 5.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+        .paused .timer-display { color: #ff9800; }
+        .sub-label { font-size: 1.1rem; color: #888; margin-bottom: 5px; letter-spacing: 1px;}
+        label { display: block; text-align: left; margin-left: 5%; font-size: 0.9rem; color: #4CAF50; font-weight: bold; }
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 8px 0 18px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #2b2b2b;
+            color: white;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button.secondary { background-color: #444; margin-top: 5px; font-size: 0.9rem; }
+        button.pause-btn { background-color: #ff9800; }
+        button.reset-btn { background-color: #f44336; }
+        .hidden { display: none; }
+        #how-to-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #1e1e1e;
+            border-radius: 20px;
+            z-index: 100;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: left;
+            overflow-y: auto;
+        }
+        .footer-info {
+            margin-top: 25px;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: #181818;
+            font-size: 0.85rem;
+            color: #bbb;
+        }
+        .footer-info b { color: #4CAF50; }
+    </style>
+</head>
+<body>
+
+<div id="setup-screen" class="container">
+    <h1>Exam Settings</h1>
+    <button style="background:#2196F3;" onclick="toggleInstructions(true)">📖 How to Use</button>
+    
+    <label>Number of Questions</label>
+    <input type="number" id="numQuestions" value="5">
+
+    <label>Minutes Per Mark (e.g., 1.5)</label>
+    <input type="number" id="minsPerMark" value="1.5" step="0.1">
+
+    <label>Transition Seconds (Wait time)</label>
+    <input type="number" id="waitTime" value="10">
+
+    <button onclick="showMarksInput()">Next: Enter Marks</button>
+    
+    <div id="how-to-modal" class="hidden">
+        <h2 style="color:#2196F3;">How to Use</h2>
+        <ul style="font-size:0.9rem; line-height:1.6;">
+            <li><b>3 Beeps:</b> Question Starts</li>
+            <li><b>2 Beeps:</b> Transition/Break Starts</li>
+            <li><b>Enter or Space:</b> Skip current timer</li>
+            <li><b>P Key:</b> Pause or Resume timer</li>
+            <li><b>Skip Logic:</b> Skipping a question bypasses the transition and starts the next question immediately.</li>
+            <li><b>how it works:</b> Enter your total questions and how many minutes you get per mark.
+            (for example setting 1 minute per mark means that for every mark 1 minute will be given.
+            So for 4 marks, 4 minutes will be given)</li>
+        </ul>
+        <h2 style="color:#2196F3;">Why should you use?</h2>
+        <ul style="font-size:0.9rem; line-height:1.6;">
+            <li><b>Reason:</b> This app helps manage time during exams efficiently. by making
+            sure that you manage time properly for each question.</li>
+            
+        </ul>
+        <button class="secondary" onclick="toggleInstructions(false)">Close Instructions</button>
+    </div>
+
+    <div class="footer-info">
+        Contact to make this app better at <b>https://www.instagram.com/adus_animationandstuff/</b><br>
+        To support me gpay <b>9819564991</b>
+    </div>
+</div>
+
+<div id="marks-screen" class="container hidden">
+    <h1>Question Marks</h1>
+    <p style="font-size: 0.8rem; color: #888;">Input marks for each question:</p>
+    <div id="marks-fields" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #333; padding: 10px;"></div>
+    <button onclick="initExam()">Start Exam</button>
+    <button class="secondary" onclick="goBackToSetup()">Back</button>
+    
+    <div class="footer-info">
+        Contact to make this app better at <b>Instagram "adus_animationandstuff"</b><br>
+        To support me gpay <b>9819564991</b>
+    </div>
+</div>
+
+<div id="timer-screen" class="container hidden">
+    <div id="sub-label" class="sub-label">READY</div>
+    <div id="main-label" style="font-size: 1.4rem; color: #4CAF50;">GET READY</div>
+    <div id="timer-display" class="timer-display">00:05</div>
+    <div id="total-left" style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Total Exam: --:--</div>
+    
+    <button id="pause-btn" class="pause-btn" onclick="togglePause()">Pause/P</button>
+    <button class="reset-btn" onclick="resetToStart()">Reset to Start</button>
+
+    <div class="footer-info">
+        Contact to make this app better at <b>Instagram "adus_animationandstuff"</b><br>
+        To support me gpay <b>9819564991</b>
+    </div>
+</div>
+
+<script>
+    let questionTimes = [], transitionTime = 0, currentIdx = 0;
+    let timerInterval, timeLeft = 0, totalExamSeconds = 0;
+    let isTransitionMode = false, isIntroMode = true, isPaused = false;
+    let lastSkipTime = 0;
+
+    const timerDisplay = document.getElementById('timer-display');
+    const totalLeftDisplay = document.getElementById('total-left');
+    const pauseBtn = document.getElementById('pause-btn');
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function toggleInstructions(s) { document.getElementById('how-to-modal').classList.toggle('hidden', !s); }
+
+    function playBeep(count) {
+        if(isPaused) return;
+        let i = 0;
+        const interval = setInterval(() => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            if (++i >= count) clearInterval(interval);
+        }, 250);
+    }
+
+    function formatTime(s) {
+        const m = Math.floor(Math.max(0, s) / 60);
+        const sec = Math.max(0, s) % 60;
+        return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function showMarksInput() {
+        const num = Math.max(1, parseInt(document.getElementById('numQuestions').value) || 1);
+        const fields = document.getElementById('marks-fields');
+        fields.innerHTML = '';
+        for (let i = 1; i <= num; i++) {
+            fields.innerHTML += `<div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:5px;"><span>Q${i}:</span><input type="number" class="mark-val" value="1" min="1" style="width:60px; margin:0;"> marks</div>`;
+        }
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('marks-screen').classList.remove('hidden');
+    }
+
+    function goBackToSetup() {
+        document.getElementById('marks-screen').classList.add('hidden');
+        document.getElementById('setup-screen').classList.remove('hidden');
+    }
+
+    function resetToStart() {
+        clearInterval(timerInterval);
+        isPaused = false;
+        document.getElementById('timer-screen').classList.add('hidden');
+        document.getElementById('setup-screen').classList.remove('hidden');
+    }
+
+    function togglePause() {
+        if (isIntroMode) return;
+        isPaused = !isPaused;
+        pauseBtn.innerText = isPaused ? "Resume" : "Pause";
+        document.getElementById('timer-screen').classList.toggle('paused', isPaused);
+    }
+
+    function initExam() {
+        const markInputs = document.querySelectorAll('.mark-val');
+        const mpm = Math.max(0.1, parseFloat(document.getElementById('minsPerMark').value) || 1);
+        transitionTime = Math.max(0, parseInt(document.getElementById('waitTime').value) || 0);
+        
+        questionTimes = Array.from(markInputs).map(input => Math.round(Math.max(1, parseFloat(input.value) || 1) * mpm * 60));
+        totalExamSeconds = questionTimes.reduce((a, b) => a + b, 0) + (transitionTime * (questionTimes.length - 1));
+
+        document.getElementById('marks-screen').classList.add('hidden');
+        document.getElementById('timer-screen').classList.remove('hidden');
+
+        isIntroMode = true; isPaused = false;
+        pauseBtn.style.display = "none";
+        runTimer(5, "GET READY", "STARTING SOON", () => startQuestion(0));
+    }
+
+    function runTimer(seconds, main, sub, onComplete) {
+        clearInterval(timerInterval);
+        timeLeft = seconds;
+        document.getElementById('main-label').innerText = main;
+        document.getElementById('sub-label').innerText = sub;
+        timerDisplay.innerText = formatTime(timeLeft);
+
+        timerInterval = setInterval(() => {
+            if (!isPaused) {
+                timeLeft--;
+                if (!isIntroMode) totalExamSeconds--;
+                if (timeLeft < 0) { clearInterval(timerInterval); onComplete(); }
+                else {
+                    timerDisplay.innerText = formatTime(timeLeft);
+                    if (!isIntroMode) totalLeftDisplay.innerText = `Total Exam: ${formatTime(totalExamSeconds)}`;
+                }
+            }
+        }, 1000);
+    }
+
+    function startQuestion(index) {
+        if (index >= questionTimes.length) { finish(); return; }
+        isIntroMode = false; isTransitionMode = false; currentIdx = index;
+        pauseBtn.style.display = "block";
+        playBeep(3);
+        runTimer(questionTimes[index], `QUESTION ${index + 1}`, "WORK PHASE", () => {
+            if(transitionTime > 0 && index < questionTimes.length - 1) startTransition(index);
+            else startQuestion(index + 1);
+        });
+    }
+
+    function startTransition(index) {
+        isTransitionMode = true;
+        playBeep(2);
+        runTimer(transitionTime, "TRANSITION", "PREPARE NEXT", () => startQuestion(index + 1));
+    }
+
+    function skip() {
+        const now = Date.now();
+        if (now - lastSkipTime < 300) return;
+        lastSkipTime = now;
+        if (isPaused) return;
+        if (isIntroMode) { startQuestion(0); return; }
+        
+        totalExamSeconds -= timeLeft;
+        if (!isTransitionMode && currentIdx < questionTimes.length - 1) totalExamSeconds -= transitionTime;
+        
+        clearInterval(timerInterval);
+        if (isTransitionMode) startQuestion(currentIdx + 1);
+        else (currentIdx < questionTimes.length - 1) ? startQuestion(currentIdx + 1) : finish();
+    }
+
+    function finish() {
+        clearInterval(timerInterval);
+        playBeep(3);
+        document.getElementById('main-label').innerText = "DONE";
+        document.getElementById('timer-display').innerText = "00:00";
+        pauseBtn.style.display = "none";
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (document.getElementById('timer-screen').classList.contains('hidden')) return;
+        if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); skip(); }
+        if (e.key.toLowerCase() === "p") togglePause();
+    });
+</script>
+</body>
+</html>
