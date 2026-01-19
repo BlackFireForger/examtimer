@@ -97,6 +97,8 @@
 
 <div id="setup-screen" class="container hidden">
     <h1>Settings</h1>
+    <p><b>Mobile:</b> Tap the large timer numbers to skip.</p>
+
     <button style="background:#2196F3;" onclick="toggleInstructions(true)">📖 How to Use</button>
     
     <label>Number of Questions</label>
@@ -111,15 +113,27 @@
     <button onclick="showMarksInput()">Next: Enter Marks</button>
     
     <div id="instructions" class="hidden">
-        <h2 style="color:#2196F3;">Instructions</h2>
-        <p><b>PC:</b> Use Space/Enter to skip, 'P' to pause.</p>
-        <p><b>Mobile:</b> Tap the large timer numbers to skip.</p>
-        <p>🔊 3 Beeps: Question Start<br>🔊 2 Beeps: Break Start</p>
+        <h2 style="color:#2196F3;">How to Use</h2>
+        <ul style="font-size:0.9rem; line-height:1.6;">
+            <li><b>For phone</b> tap the timer to skip questions if done</li>
+            <li><b>3 Beeps:</b> Question Starts</li>
+            <li><b>2 Beeps:</b> Transition/Break Starts</li>
+            <li><b>Enter or Space:</b> Skip current timer</li>
+            <li><b>P Key:</b> Pause or Resume timer </li>
+            <li><b>Skip Logic:</b> Skipping a question bypasses the transition and starts the next question immediately.</li>
+            <li><b>how it works:</b> Enter your total questions and how many minutes you get per mark.
+            (for example setting 1 minute per mark means that for every mark 1 minute will be given.
+            So for 4 marks, 4 minutes will be given)</li>
+        </ul>
+        <h2 style="color:#2196F3;">Why should you use?</h2>
+        <ul style="font-size:0.9rem; line-height:1.6;">
+            <li><b>Reason:</b> This app helps manage time during exams efficiently. by making
+            sure that you manage time properly for each question.</li>
         <button class="secondary" onclick="toggleInstructions(false)">Close</button>
     </div>
 
     <div class="footer-info">
-        Contact to make this app better at <b>Instagram</b><br>
+        Contact to make this app better at <b>Instagram "adus_animationandstuff"</b><br>
         To support me gpay <b>9819564991</b>
     </div>
 </div>
@@ -142,7 +156,7 @@
     <button class="reset-btn" onclick="resetToStart()">Reset to Start</button>
 
     <div class="footer-info">
-        Contact to make this app better at <b>Instagram</b><br>
+        Contact to make this app better at <b>Instagram "adus_animationandstuff"</b><br>
         To support me gpay <b>9819564991</b>
     </div>
 </div>
