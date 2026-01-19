@@ -3,88 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Exam Timer Universal</title>
+    <title>Exam Timer Universal Pro</title>
     <style>
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #0f0f0f;
-            color: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            touch-action: manipulation; /* Prevents accidental zooming on taps */
+        :root { --primary: #4CAF50; --secondary: #2196F3; --warn: #ff9800; --danger: #f44336; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: #0f0f0f; color: #e0e0e0; 
+            display: flex; align-items: center; justify-content: center; 
+            min-height: 100vh; margin: 0; touch-action: manipulation;
         }
-        .container {
-            background: #1e1e1e;
-            padding: 25px;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            border: 1px solid #333;
+        .container { 
+            background: #1e1e1e; padding: 25px; border-radius: 24px; 
+            width: 90%; max-width: 400px; text-align: center; 
+            border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             position: relative;
         }
-        h1 { color: #4CAF50; margin: 0 0 20px 0; font-size: 1.5rem; }
-        .timer-display {
-            font-size: clamp(4rem, 15vw, 6rem);
-            font-weight: 800;
-            margin: 10px 0;
-            color: #ffffff;
-            font-variant-numeric: tabular-nums;
-            cursor: pointer;
+        h1 { color: var(--primary); margin: 0 0 20px 0; font-size: 1.5rem; }
+        .timer-display { 
+            font-size: clamp(3.5rem, 15vw, 5.5rem); font-weight: 800; color: white; 
+            font-variant-numeric: tabular-nums; margin: 10px 0; cursor: pointer;
             user-select: none;
         }
-        .paused .timer-display { color: #ff9800; }
-        .sub-label { font-size: 1rem; color: #888; letter-spacing: 1px; text-transform: uppercase; }
-        label { display: block; text-align: left; margin: 10px 0 5px 5%; font-size: 0.85rem; color: #4CAF50; font-weight: bold; }
-        input {
-            width: 90%;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            border: 1px solid #444;
-            background: #2b2b2b;
-            color: white;
-            font-size: 1rem;
-            -webkit-appearance: none; /* Fixes iOS input styling */
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-        button:active { transform: scale(0.98); opacity: 0.8; }
-        .secondary { background-color: #444; font-size: 0.9rem; }
-        .pause-btn { background-color: #ff9800; }
-        .reset-btn { background-color: #f44336; margin-top: 15px; }
-        .hidden { display: none; }
+        .paused .timer-display { color: var(--warn); }
+        .sub-label { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
         
-        #instructions {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #1e1e1e; border-radius: 24px; z-index: 100;
-            padding: 20px; box-sizing: border-box; text-align: left; overflow-y: auto;
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; max-height: 100px; overflow-y: auto; padding: 8px; background: #151515; border-radius: 12px; border: 1px solid #222; }
+        .nav-dot { background: #2b2b2b; border: 1px solid #444; color: #888; padding: 8px 0; border-radius: 8px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .nav-dot.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+        .nav-dot.has-time { border: 1px solid var(--secondary); color: var(--secondary); }
+        /* Style for disabled/locked questions */
+        .nav-dot.locked { opacity: 0.3; cursor: not-allowed; border: 1px solid #222; text-decoration: line-through; }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        button { padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.1s; font-size: 1rem; width: 100%; }
+        button:active { transform: scale(0.98); opacity: 0.8; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-pause { background: var(--warn); color: white; }
+        .btn-secondary { background: #444; color: white; font-size: 0.9rem; margin-top: 10px; }
+        .btn-reset { background: var(--danger); color: white; margin-top: 20px; font-size: 0.8rem; padding: 10px; }
+        
+        input { width: 90%; padding: 12px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #444; background: #2b2b2b; color: white; font-size: 1rem; }
+        label { display: block; text-align: left; margin: 10px 0 5px 5%; font-size: 0.85rem; color: var(--primary); font-weight: bold; }
+        
+        #instructions { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #1e1e1e; border-radius: 24px; z-index: 100; 
+            padding: 20px; box-sizing: border-box; text-align: left; overflow-y: auto; 
         }
-        .footer-info {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 15px;
-            background: #151515;
-            font-size: 0.8rem;
-            color: #999;
-            border: 1px solid #222;
-        }
-        .footer-info b { color: #4CAF50; }
+        .footer-info { margin-top: 20px; padding: 12px; border-radius: 15px; background: #151515; font-size: 0.75rem; color: #777; border: 1px solid #222; line-height: 1.4; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -92,80 +59,83 @@
 <div id="start-screen" class="container">
     <h1>Exam Timer Pro</h1>
     <p style="color: #888;">Tap below to start and enable audio</p>
-    <button onclick="initAudio()">Begin Setup</button>
+    <button class="btn-main" onclick="initAudio()">Begin Setup</button>
+    <div class="footer-info">
+        Contact to make the app better: <b>Instagram "adus_animationandstuff"</b><br>
+        To support me: GPay <b>9819564991</b>
 </div>
+</div>
+
 
 <div id="setup-screen" class="container hidden">
     <h1>Settings</h1>
-    <p><b>Mobile:</b> Tap the large timer numbers to skip.</p>
-
-    <button style="background:#2196F3;" onclick="toggleInstructions(true)">📖 How to Use</button>
+    <button style="background:var(--secondary);" onclick="toggleInstructions(true)">📖 How to Use</button>
     
     <label>Number of Questions</label>
     <input type="number" id="numQuestions" value="5" inputmode="numeric">
-
     <label>Minutes Per Mark</label>
     <input type="number" id="minsPerMark" value="1.5" step="0.1" inputmode="decimal">
-
     <label>Transition Seconds</label>
     <input type="number" id="waitTime" value="10" inputmode="numeric">
 
-    <button onclick="showMarksInput()">Next: Enter Marks</button>
+    <button class="btn-main" onclick="showMarksInput()">Next: Enter Marks</button>
+    <div class="footer-info">
+        Contact: <b>Instagram "adus_animationandstuff"</b><br>
+        Support: GPay <b>9819564991</b>
+    </div>
     
     <div id="instructions" class="hidden">
-        <h2 style="color:#2196F3;">How to Use</h2>
-        <ul style="font-size:0.9rem; line-height:1.6;">
-            <li><b>For phone</b> tap the timer to skip questions if done</li>
-            <li><b>3 Beeps:</b> Question Starts</li>
-            <li><b>2 Beeps:</b> Transition/Break Starts</li>
-            <li><b>Enter or Space:</b> Skip current timer</li>
-            <li><b>P Key:</b> Pause or Resume timer </li>
-            <li><b>Skip Logic:</b> Skipping a question bypasses the transition and starts the next question immediately.</li>
+        <h2 style="color:var(--secondary);">How to Use</h2>
+        <ul style="font-size:0.85rem; line-height:1.6; padding-left: 20px;">
+             <li><b>Tip!</b> you can comeback to questions later if timer is not over for that particular question</li>
+            <li><b>Lock System:</b> Once a question's time reaches 0, it is locked and you cannot go back to it.</li>
+            <li><b>For phone:</b> Tap the large timer numbers to skip questions if done.</li>
+            <li><b>3 Beeps:</b> Question Starts (Work Phase).</li>
+            <li><b>2 Beeps:</b> Transition/Break Starts.</li>
+            <li><b>Enter or Space:</b> Skip current timer.</li>
+            <li><b>P Key:</b> Pause or Resume timer.</li>
             <li><b>how it works:</b> Enter your total questions and how many minutes you get per mark.
             (for example setting 1 minute per mark means that for every mark 1 minute will be given.
-            So for 4 marks, 4 minutes will be given)</li>
+            So for 4 marks, 4 minutes will be given)</li>   
         </ul>
-        <h2 style="color:#2196F3;">Why should you use?</h2>
-        <ul style="font-size:0.9rem; line-height:1.6;">
-            <li><b>Reason:</b> This app helps manage time during exams efficiently. by making
-            sure that you manage time properly for each question.</li>
-        <button class="secondary" onclick="toggleInstructions(false)">Close</button>
-    </div>
-
-    <div class="footer-info">
-        Contact to make this app better at <b>Instagram "adus_animationandstuff"</b><br>
-        To support me gpay <b>9819564991</b>
+        <button class="btn-secondary" onclick="toggleInstructions(false)">Close</button>
     </div>
 </div>
 
 <div id="marks-screen" class="container hidden">
     <h1>Question Marks</h1>
     <div id="marks-fields" style="max-height: 40vh; overflow-y: auto; margin-bottom: 15px; border: 1px solid #333; padding: 10px; border-radius: 10px;"></div>
-    <button onclick="initExam()">Start Exam</button>
-    <button class="secondary" onclick="goBackToSetup()">Back</button>
+    <button class="btn-main" onclick="initExam()">Start Exam</button>
+    <button class="btn-secondary" onclick="goBackToSetup()">Back</button>
 </div>
 
 <div id="timer-screen" class="container hidden">
     <div id="sub-label" class="sub-label">READY</div>
-    <div id="main-label" style="font-size: 1.3rem; color: #4CAF50; margin: 5px 0;">GET READY</div>
+    <div id="main-label" style="font-size: 1.3rem; color: var(--primary); margin: 5px 0;">GET READY</div>
     
-    <div id="timer-display" class="timer-display" onclick="skip()">00:05</div>
-    <div id="total-left" style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Total: --:--</div>
+    <div id="timer-display" class="timer-display" onclick="handleTimerClick()">00:05</div>
+    <div id="total-left" style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Total Exam Left: --:--</div>
+
+    <div class="nav-grid" id="nav-grid"></div>
+
+    <div class="btn-group">
+        <button id="pause-btn" class="btn-pause" onclick="togglePause()">Pause</button>
+        <button id="next-btn" class="btn-main" onclick="handleManualNext()">Next</button>
+    </div>
+    <button id="finish-q-btn" class="btn-secondary" onclick="markDone()">Finish Question</button>
     
-    <button id="pause-btn" class="pause-btn" onclick="togglePause()">Pause</button>
-    <button class="reset-btn" onclick="resetToStart()">Reset to Start</button>
+    <button class="btn-reset" onclick="location.reload()">Reset Entire Exam</button>
 
     <div class="footer-info">
-        Contact to make this app better at <b>Instagram "adus_animationandstuff"</b><br>
-        To support me gpay <b>9819564991</b>
+        Contact: <b>Instagram "adus_animationandstuff"</b><br>
+        Support: GPay <b>9819564991</b>
     </div>
 </div>
 
 <script>
-    let questionTimes = [], transitionTime = 0, currentIdx = 0;
-    let timerInterval, timeLeft = 0, totalExamSeconds = 0;
-    let isTransitionMode = false, isIntroMode = true, isPaused = false;
-    let audioCtx;
+    let examData = [], currentIdx = 0, transitionTime = 0;
+    let timerInterval = null, isTransition = false, isPaused = false, totalExamSeconds = 0;
+    let audioCtx, isIntro = true;
 
     function initAudio() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -175,34 +145,12 @@
 
     function toggleInstructions(s) { document.getElementById('instructions').classList.toggle('hidden', !s); }
 
-    function playBeep(count) {
-        if(isPaused || !audioCtx) return;
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        let i = 0;
-        const interval = setInterval(() => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-            if (++i >= count) clearInterval(interval);
-        }, 250);
-    }
-
-    function formatTime(s) {
-        const m = Math.floor(Math.max(0, s) / 60);
-        const sec = Math.max(0, s) % 60;
-        return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-    }
-
     function showMarksInput() {
         const num = Math.max(1, parseInt(document.getElementById('numQuestions').value) || 1);
         const fields = document.getElementById('marks-fields');
         fields.innerHTML = '';
         for (let i = 1; i <= num; i++) {
-            fields.innerHTML += `<div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:8px;"><span>Q${i}:</span><input type="number" class="mark-val" value="1" min="1" inputmode="numeric" style="width:70px; margin:0;"> marks</div>`;
+            fields.innerHTML += `<div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:8px;"><span>Q${i}:</span><input type="number" class="mark-val" value="1" min="1" style="width:70px; margin:0;"> marks</div>`;
         }
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('marks-screen').classList.remove('hidden');
@@ -213,95 +161,192 @@
         document.getElementById('setup-screen').classList.remove('hidden');
     }
 
-    function resetToStart() {
-        clearInterval(timerInterval);
-        isPaused = false;
-        document.getElementById('timer-screen').classList.add('hidden');
-        document.getElementById('setup-screen').classList.remove('hidden');
+    function initExam() {
+        const mpm = parseFloat(document.getElementById('minsPerMark').value) || 1.5;
+        transitionTime = parseInt(document.getElementById('waitTime').value) || 0;
+        const markInputs = document.querySelectorAll('.mark-val');
+        
+        examData = Array.from(markInputs).map((input, i) => ({
+            id: i + 1,
+            remaining: Math.round(parseFloat(input.value) * mpm * 60)
+        }));
+
+        totalExamSeconds = examData.reduce((a, b) => a + b.remaining, 0);
+        document.getElementById('marks-screen').classList.add('hidden');
+        document.getElementById('timer-screen').classList.remove('hidden');
+        isIntro = true;
+        runIntro();
     }
 
+    function runIntro() {
+        let introTime = 5;
+        updateDisplay(introTime);
+        timerInterval = setInterval(() => {
+            if (isPaused) return;
+            introTime--;
+            updateDisplay(introTime);
+            if (introTime <= 0) {
+                isIntro = false;
+                jumpTo(0);
+            }
+        }, 1000);
+    }
+
+    function updateDisplay(val) {
+        document.getElementById('timer-display').innerText = formatTime(val);
+    }
+
+    function updateUI() {
+        const q = examData[currentIdx];
+        document.getElementById('main-label').innerText = isTransition ? "Transition" : `Question ${q.id}`;
+        document.getElementById('sub-label').innerText = isTransition ? "Break Time" : "Work Phase";
+        document.getElementById('main-label').style.color = isTransition ? "var(--secondary)" : "var(--primary)";
+        
+        updateDisplay(isTransition ? transitionTimeLeft : q.remaining);
+        
+        totalExamSeconds = examData.reduce((a, b) => a + b.remaining, 0);
+        document.getElementById('total-left').innerText = `Total Exam Left: ${formatTime(totalExamSeconds)}`;
+        
+        const nav = document.getElementById('nav-grid');
+        nav.innerHTML = '';
+        examData.forEach((item, idx) => {
+            let stateClass = '';
+            let onClickAction = `jumpTo(${idx})`;
+            
+            if (idx === currentIdx) {
+                stateClass = 'active';
+            } else if (item.remaining <= 0) {
+                stateClass = 'locked'; // Visual look for finished questions
+                onClickAction = ''; // Remove clickability
+            } else {
+                stateClass = 'has-time';
+            }
+            
+            nav.innerHTML += `<div class="nav-dot ${stateClass}" onclick="${onClickAction}">Q${item.id}</div>`;
+        });
+    }
+
+    function jumpTo(idx) {
+        if (idx >= examData.length) { finish(); return; }
+        
+        // MODIFIED: If question is already finished, skip to the NEXT available question
+        if (examData[idx].remaining <= 0 && idx !== currentIdx) {
+            jumpTo(idx + 1);
+            return;
+        }
+
+        clearInterval(timerInterval);
+        isTransition = false;
+        isIntro = false;
+        currentIdx = idx;
+        updateUI();
+        startTimer();
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        playBeep(isTransition ? 2 : 3, isTransition ? 600 : 800);
+        
+        timerInterval = setInterval(() => {
+            if (isPaused) return;
+            
+            if (isTransition) {
+                transitionTimeLeft--;
+                if (transitionTimeLeft < 0) { 
+                    isTransition = false; 
+                    jumpTo(currentIdx + 1); 
+                }
+            } else {
+                let q = examData[currentIdx];
+                if (q.remaining > 0) {
+                    q.remaining--;
+                } else {
+                    autoProgress();
+                }
+            }
+            updateUI();
+        }, 1000);
+    }
+
+    function handleManualNext() {
+        if (isIntro) { jumpTo(0); return; }
+        jumpTo(currentIdx + 1);
+    }
+
+    function autoProgress() {
+        if (transitionTime > 0 && currentIdx < examData.length - 1) {
+            isTransition = true;
+            transitionTimeLeft = transitionTime;
+            startTimer();
+        } else {
+            jumpTo(currentIdx + 1);
+        }
+    }
+
+    function markDone() {
+        if (isIntro || isTransition) return;
+        examData[currentIdx].remaining = 0;
+        handleManualNext();
+    }
+
+    function handleTimerClick() { if (!isPaused) handleManualNext(); }
+
     function togglePause() {
-        if (isIntroMode) return;
         isPaused = !isPaused;
         document.getElementById('pause-btn').innerText = isPaused ? "Resume" : "Pause";
         document.getElementById('timer-screen').classList.toggle('paused', isPaused);
     }
 
-    function initExam() {
-        const markInputs = document.querySelectorAll('.mark-val');
-        const mpm = Math.max(0.1, parseFloat(document.getElementById('minsPerMark').value) || 1);
-        transitionTime = Math.max(0, parseInt(document.getElementById('waitTime').value) || 0);
-        
-        questionTimes = Array.from(markInputs).map(input => Math.round(Math.max(1, parseFloat(input.value) || 1) * mpm * 60));
-        totalExamSeconds = questionTimes.reduce((a, b) => a + b, 0) + (transitionTime * (questionTimes.length - 1));
-
-        document.getElementById('marks-screen').classList.add('hidden');
-        document.getElementById('timer-screen').classList.remove('hidden');
-
-        isIntroMode = true; isPaused = false;
-        document.getElementById('pause-btn').style.display = "none";
-        runTimer(5, "GET READY", "Starting Soon", () => startQuestion(0));
-    }
-
-    function runTimer(seconds, main, sub, onComplete) {
-        clearInterval(timerInterval);
-        timeLeft = seconds;
-        document.getElementById('main-label').innerText = main;
-        document.getElementById('sub-label').innerText = sub;
-        document.getElementById('timer-display').innerText = formatTime(timeLeft);
-
-        timerInterval = setInterval(() => {
-            if (!isPaused) {
-                timeLeft--;
-                if (!isIntroMode) totalExamSeconds--;
-                if (timeLeft < 0) { clearInterval(timerInterval); onComplete(); }
-                else {
-                    document.getElementById('timer-display').innerText = formatTime(timeLeft);
-                    if (!isIntroMode) document.getElementById('total-left').innerText = `Total Exam Time Left: ${formatTime(totalExamSeconds)}`;
-                }
-            }
-        }, 1000);
-    }
-
-    function startQuestion(index) {
-        if (index >= questionTimes.length) { finish(); return; }
-        isIntroMode = false; isTransitionMode = false; currentIdx = index;
-        document.getElementById('pause-btn').style.display = "block";
-        playBeep(3);
-        runTimer(questionTimes[index], `Question ${index + 1}`, "Work Phase", () => {
-            if(transitionTime > 0 && index < questionTimes.length - 1) startTransition(index);
-            else startQuestion(index + 1);
-        });
-    }
-
-    function startTransition(index) {
-        isTransitionMode = true;
-        playBeep(2);
-        runTimer(transitionTime, "Transition", "Break", () => startQuestion(index + 1));
-    }
-
-    function skip() {
-        if (isPaused) return;
-        if (isIntroMode) { startQuestion(0); return; }
-        totalExamSeconds -= timeLeft;
-        if (!isTransitionMode && currentIdx < questionTimes.length - 1) totalExamSeconds -= transitionTime;
-        clearInterval(timerInterval);
-        if (isTransitionMode) startQuestion(currentIdx + 1);
-        else (currentIdx < questionTimes.length - 1) ? startQuestion(currentIdx + 1) : finish();
-    }
-
     function finish() {
         clearInterval(timerInterval);
-        playBeep(3);
+        playFinalAlarm();
         document.getElementById('main-label').innerText = "DONE";
+        document.getElementById('sub-label').innerText = "Exam Complete";
         document.getElementById('timer-display').innerText = "00:00";
-        document.getElementById('pause-btn').style.display = "none";
     }
 
-    // Controls
+    function formatTime(s) {
+        const m = Math.floor(Math.max(0, s) / 60);
+        const sec = Math.max(0, s) % 60;
+        return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function playBeep(count, freq = 800) {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        let i = 0;
+        const interval = setInterval(() => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            if (++i >= count) clearInterval(interval);
+        }, 250);
+    }
+
+    function playFinalAlarm() {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        let i = 0;
+        const interval = setInterval(() => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const freq = i % 2 === 0 ? 1200 : 900;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            if (++i >= 6) clearInterval(interval);
+        }, 500);
+    }
+
     window.addEventListener('keydown', (e) => {
         if (document.getElementById('timer-screen').classList.contains('hidden')) return;
-        if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); skip(); }
+        if (e.code === "Space" || e.code === "Enter") { e.preventDefault(); handleManualNext(); }
         if (e.key.toLowerCase() === "p") togglePause();
     });
 </script>
