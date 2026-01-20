@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Exam Timer Universal Pro</title>
+    <title>Exam Timer Pro</title>
     <style>
         :root { --primary: #4CAF50; --secondary: #2196F3; --warn: #ff9800; --danger: #f44336; }
         body { 
@@ -31,8 +31,7 @@
         .nav-dot { background: #2b2b2b; border: 1px solid #444; color: #888; padding: 8px 0; border-radius: 8px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
         .nav-dot.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
         .nav-dot.has-time { border: 1px solid var(--secondary); color: var(--secondary); }
-        /* Style for disabled/locked questions */
-        .nav-dot.locked { opacity: 0.3; cursor: not-allowed; border: 1px solid #222; text-decoration: line-through; }
+        .nav-dot.locked { opacity: 0.2; cursor: not-allowed; border: 1px solid #111; text-decoration: line-through; pointer-events: none; }
 
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         button { padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.1s; font-size: 1rem; width: 100%; }
@@ -63,9 +62,8 @@
     <div class="footer-info">
         Contact to make the app better: <b>Instagram "adus_animationandstuff"</b><br>
         To support me: GPay <b>9819564991</b>
+    </div>
 </div>
-</div>
-
 
 <div id="setup-screen" class="container hidden">
     <h1>Settings</h1>
@@ -80,23 +78,17 @@
 
     <button class="btn-main" onclick="showMarksInput()">Next: Enter Marks</button>
     <div class="footer-info">
-        Contact: <b>Instagram "adus_animationandstuff"</b><br>
-        Support: GPay <b>9819564991</b>
+        Contact to make the app better: <b>Instagram "adus_animationandstuff"</b><br>
+        To support me: GPay <b>9819564991</b>
     </div>
     
     <div id="instructions" class="hidden">
         <h2 style="color:var(--secondary);">How to Use</h2>
         <ul style="font-size:0.85rem; line-height:1.6; padding-left: 20px;">
-             <li><b>Tip!</b> you can comeback to questions later if timer is not over for that particular question</li>
-            <li><b>Lock System:</b> Once a question's time reaches 0, it is locked and you cannot go back to it.</li>
-            <li><b>For phone:</b> Tap the large timer numbers to skip questions if done.</li>
-            <li><b>3 Beeps:</b> Question Starts (Work Phase).</li>
-            <li><b>2 Beeps:</b> Transition/Break Starts.</li>
-            <li><b>Enter or Space:</b> Skip current timer.</li>
-            <li><b>P Key:</b> Pause or Resume timer.</li>
-            <li><b>how it works:</b> Enter your total questions and how many minutes you get per mark.
-            (for example setting 1 minute per mark means that for every mark 1 minute will be given.
-            So for 4 marks, 4 minutes will be given)</li>   
+            <li><b>Lock System:</b> Questions lock only when they hit 0.</li>
+            <li><b>Last Question:</b> Finishing the last question won't end the exam if others have time left. It will jump you back to them.</li>
+            <li><b>3 Beeps:</b> Question Starts.</li>
+            <li><b>2 Beeps:</b> Transition Starts.</li>
         </ul>
         <button class="btn-secondary" onclick="toggleInstructions(false)">Close</button>
     </div>
@@ -198,6 +190,14 @@
 
     function updateUI() {
         const q = examData[currentIdx];
+        
+        // Accurate Check: Only finish if absolutely NO time remains in ANY question
+        const hasTimeLeft = examData.some(item => item.remaining > 0);
+        if (!hasTimeLeft && !isIntro) {
+            finish();
+            return;
+        }
+
         document.getElementById('main-label').innerText = isTransition ? "Transition" : `Question ${q.id}`;
         document.getElementById('sub-label').innerText = isTransition ? "Break Time" : "Work Phase";
         document.getElementById('main-label').style.color = isTransition ? "var(--secondary)" : "var(--primary)";
@@ -210,29 +210,26 @@
         const nav = document.getElementById('nav-grid');
         nav.innerHTML = '';
         examData.forEach((item, idx) => {
-            let stateClass = '';
-            let onClickAction = `jumpTo(${idx})`;
-            
-            if (idx === currentIdx) {
-                stateClass = 'active';
-            } else if (item.remaining <= 0) {
-                stateClass = 'locked'; // Visual look for finished questions
-                onClickAction = ''; // Remove clickability
-            } else {
-                stateClass = 'has-time';
-            }
-            
-            nav.innerHTML += `<div class="nav-dot ${stateClass}" onclick="${onClickAction}">Q${item.id}</div>`;
+            let cls = idx === currentIdx ? 'active' : (item.remaining > 0 ? 'has-time' : 'locked');
+            let click = (item.remaining > 0) ? `onclick="jumpTo(${idx})"` : '';
+            nav.innerHTML += `<div class="nav-dot ${cls}" ${click}>Q${item.id}</div>`;
         });
     }
 
     function jumpTo(idx) {
-        if (idx >= examData.length) { finish(); return; }
+        // If we go past the end, try to find ANY remaining question starting from Q1
+        if (idx >= examData.length) {
+            idx = examData.findIndex(q => q.remaining > 0);
+            if (idx === -1) { finish(); return; }
+        }
         
-        // MODIFIED: If question is already finished, skip to the NEXT available question
-        if (examData[idx].remaining <= 0 && idx !== currentIdx) {
-            jumpTo(idx + 1);
-            return;
+        // If the targeted question is locked/0, find the next available one
+        if (examData[idx].remaining <= 0) {
+            let nextIdx = examData.findIndex((q, i) => i > idx && q.remaining > 0);
+            if (nextIdx === -1) nextIdx = examData.findIndex(q => q.remaining > 0);
+            
+            if (nextIdx === -1) { finish(); return; }
+            idx = nextIdx;
         }
 
         clearInterval(timerInterval);
@@ -270,16 +267,24 @@
 
     function handleManualNext() {
         if (isIntro) { jumpTo(0); return; }
-        jumpTo(currentIdx + 1);
+        // Look for next available question
+        let nextIdx = examData.findIndex((q, i) => i > currentIdx && q.remaining > 0);
+        if (nextIdx === -1) {
+            // Circle back to earlier questions if last question is done
+            nextIdx = examData.findIndex(q => q.remaining > 0);
+        }
+        
+        if (nextIdx === -1) finish();
+        else jumpTo(nextIdx);
     }
 
     function autoProgress() {
-        if (transitionTime > 0 && currentIdx < examData.length - 1) {
+        if (transitionTime > 0 && examData.some((q, i) => i > currentIdx && q.remaining > 0)) {
             isTransition = true;
             transitionTimeLeft = transitionTime;
             startTimer();
         } else {
-            jumpTo(currentIdx + 1);
+            handleManualNext();
         }
     }
 
@@ -303,6 +308,7 @@
         document.getElementById('main-label').innerText = "DONE";
         document.getElementById('sub-label').innerText = "Exam Complete";
         document.getElementById('timer-display').innerText = "00:00";
+        document.getElementById('total-left').innerText = `Total Exam Left: 00:00`;
     }
 
     function formatTime(s) {
